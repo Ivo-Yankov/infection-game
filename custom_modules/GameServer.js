@@ -40,18 +40,7 @@ GameServer = function (args) {
         }
     }
 
-    this.board = new Board(args);
-
-    // Do this some other way
-    if (this.players.length === 2) {
-        this.board.grid[0][0].player = 1;
-        this.board.grid[this.board.size_y - 1][this.board.size_x - 1].player = 1;
-
-        this.board.grid[this.board.size_y - 1][0].player = 2;
-        this.board.grid[0][this.board.size_x - 1].player = 2;
-    }
-
-    this.assignNextPlayer();
+    this.startGame(args);
 };
 
 GameServer.prototype.addPlayer = function (player) {
@@ -76,7 +65,6 @@ GameServer.prototype.getData = function () {
 
 GameServer.prototype.validateMove = function (cell1, cell2, player_number) {
     var player = this.getPlayer(player_number);
-    console.log(player.to_move);
     if (player.to_move) {
         var distance = this.board.getCellDistance(cell1, cell2);
 
@@ -143,6 +131,10 @@ GameServer.prototype.makeMove = function (target, destination, player_number, so
 
         this.assignNextPlayer();
         this.emit('update board', this.getData());
+
+        if (this.gameIsOver()) {
+            this.endGame();
+        }
     }
 };
 
@@ -179,6 +171,57 @@ GameServer.prototype.getPlayerBySocketId = function (socket_id) {
     }
 
     return null;
+};
+
+GameServer.prototype.startGame = function (args) {
+    this.board = new Board(args);
+
+    // Do this some other way
+    if (this.players.length === 2) {
+        this.board.grid[0][0].player = 1;
+        this.board.grid[this.board.size_y - 1][this.board.size_x - 1].player = 1;
+
+        this.board.grid[this.board.size_y - 1][0].player = 2;
+        this.board.grid[0][this.board.size_x - 1].player = 2;
+    }
+
+    this.assignNextPlayer();
+};
+
+GameServer.prototype.gameIsOver = function () {
+    var grid = this.board.grid;
+    var empty_cells = 0;
+    var players_score = {};
+    var remaining_players = 0;
+    for (var y = 0; y < grid.length; y++) {
+        for (var x = 0; x < grid[y].length; x++) {
+            if (!grid[y][x].player) {   // The cell is still empty
+                empty_cells++;
+            }
+            else {
+                if (!players_score[grid[y][x].player]) {
+                    remaining_players++;
+                    players_score[grid[y][x].player] = 1;
+                }
+                else {
+                    players_score[grid[y][x].player]++;
+                }
+            }
+        }
+    }
+
+    // The game ends when there are no empty cells or when there is only 1 player left
+    return remaining_players === 1 || !empty_cells;
+};
+
+GameServer.prototype.endGame = function () {
+    this.emit('game over', this.getResults());
+};
+
+GameServer.prototype.getResults = function () {
+    return {
+        winner: 1
+    };
 };
 
 module.exports = GameServer;

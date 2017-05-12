@@ -49,29 +49,38 @@ var SocketHandler = (function($, io) {
 			window.menu.refreshLobby(data);
 			// populate the lobby screen with data
 		});
-	}
+
+        this.socket.on('game over', function( data ) {
+            if (data.winner === window.player_number) {
+            	alert('You won the game!');
+			}
+			else {
+                alert('Game over! You suck!');
+			}
+        });
+	};
 
 	handler.prototype.subscribeToGameList = function() {
 		console.log('subscribeToGameList');
 		this.socket.emit('listen for lobbies');
-	}
+	};
 
 	handler.prototype.unsubscribeFromGameList = function() {
 		console.log('unsubscribeFromGameList');
 		this.socket.emit('stop listening for lobbies');
-	}
+	};
 
 	handler.prototype.createGame = function( args ) {
 		this.socket.emit('create game', args);
-	}
+	};
 
 	handler.prototype.startGame = function( args ) {
 		this.socket.emit('start game', args);
-	}
+	};
 
 	handler.prototype.joinGame = function( lobby_id ) {
 		this.socket.emit('join lobby', lobby_id);
-	}
+	};
 
 	handler.prototype.makeMove = function( target, destination ) {
 		console.log('sending move request');
@@ -80,7 +89,7 @@ var SocketHandler = (function($, io) {
 			destination: destination,
 			player_number: window.player_number
 		});	
-	}
+	};
 
 	return handler;
 })(jQuery, io);
