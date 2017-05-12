@@ -1,42 +1,10 @@
-var GameServer = require('./GameServer.js');
-var Lobby = require('./Lobby.js');
+var Server = require('./Server.js');
 
 SocketEventHandler = function (args) {
-
-    function sendLobbiesList() {
-        var lobbies_data = [];
-        for (var i = 0; i < app.lobbies.length; i++) {
-            lobbies_data.push(app.lobbies[i].getData());
-        }
-
-        for (var i = 0; i < app.lobbyListeners.length; i++) {
-            app.lobbyListeners[i].emit('refresh lobbies', lobbies_data);
-        }
-    }
-
-    function removeFromLobbyListeners(socket) {
-        for (var i = 0; i < app.lobbyListeners.length; i++) {
-            if (app.lobbyListeners[i] && app.lobbyListeners[i].id === socket.id) {
-                app.lobbyListeners.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    function getLobby(lobby_id) {
-        for (var i = 0; i < app.lobbies.length; i++) {
-            if (app.lobbies[i].id === lobby_id) {
-                return app.lobbies[i];
-            }
-        }
-
-        return null;
-    }
 
     var io = args.io;
     var app = args.app;
     var eventEmitter = args.eventEmitter;
-    app.lobbyListeners = [];
 
     io.on('connection', function (socket) {
         console.log('a user has connected');
@@ -49,7 +17,7 @@ SocketEventHandler = function (args) {
             });
             app.lobbies.push(lobby);
 
-            sendLobbiesList();
+            app.lobbyListeners.update(servers.getLobbiesList());
         });
 
         socket.on('join lobby', function (id) {
@@ -72,13 +40,13 @@ SocketEventHandler = function (args) {
                 }
             }
 
-            var server = new GameServer({
+            var server = new Server({
                 app: app,
                 hostSocket: socket,
                 lobby: lobby
             });
 
-            app.game_servers.push(server);
+            app.servers.push(server);
 
             server.emit('game started', server.getData());
         });
@@ -89,7 +57,7 @@ SocketEventHandler = function (args) {
 
         socket.on('listen for lobbies', function () {
             app.lobbyListeners.push(socket);
-            sendLobbiesList();
+            app.lobbyListeners.update(servers.getLobbiesList());
         });
 
         socket.on('stop listening for lobbies', function () {
@@ -135,13 +103,13 @@ SocketEventHandler = function (args) {
                 }
             }
 
-            for (var i = 0; i < app.game_servers.length; i++) {
-                var player = app.game_servers[i].getPlayerBySocketId(socket.id);
+            for (var i = 0; i < app.servers.length; i++) {
+                var player = app.servers[i].getPlayerBySocketId(socket.id);
                 if (player) {
-                    app.game_servers[i].removePlayer(player.id);
-                    app.game_servers[i].emit('player left the game', socket.id);
+                    app.servers[i].removePlayer(player.id);
+                    app.servers[i].emit('player left the game', socket.id);
 
-                    if (!app.game_servers[i].players.length) {
+                    if (!app.servers[i].players.length) {
                         // Game is empty
                     }
                     return;

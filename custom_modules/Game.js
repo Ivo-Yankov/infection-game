@@ -1,69 +1,11 @@
-var Board = require('./Board.js');
-var Player = require('./Player.js');
+const Server = require('./Server.js');
+const util = require('util');
 
-GameServer = function (args) {
-    this.app = args.app;
-    this.id = args.hostSocket.id;
-    this.hostSocket = args.hostSocket;
-    this.players = [];
-    this.hostSocket.server = this;
-
-    if (args.lobby) {
-        for (var i = 0; i < args.lobby.players.length; i++) {
-            var player_args = {
-                type: args.lobby.players[i].type,
-                number: i + 1
-            };
-
-            if (args.lobby.players[i].socket) {
-                player_args.socket = args.lobby.players[i].socket;
-            }
-
-            this.addPlayer(new Player(player_args));
-        }
-    }
-    else {
-        this.addPlayer(new Player({
-                type: "human",
-                socket: args.hostSocket,
-                number: 1
-            })
-        );
-
-        args.ai_players = args.ai_players || 0;
-        for (var i = 0; i < args.ai_players; i++) {
-            this.addPlayer(new Player({
-                    type: "ai",
-                    number: this.players.length + 1
-                })
-            );
-        }
-    }
-
-    this.startGame(args);
+var Game = function() {
+    Server.call(this);
 };
 
-GameServer.prototype.addPlayer = function (player) {
-    this.players.push(player);
-    if (player.socket) {
-        player.socket.server = this;
-        player.socket.emit('assign player number', player.number);
-    }
-};
-
-GameServer.prototype.getData = function () {
-    var players = [];
-    for (var i = 0; i < this.players.length; i++) {
-        players.push(this.players[i].getData());
-    }
-
-    return {
-        board: this.board.getData(),
-        players: players
-    }
-};
-
-GameServer.prototype.validateMove = function (cell1, cell2, player_number) {
+Game.prototype.validateMove = function (cell1, cell2, player_number) {
     var player = this.getPlayer(player_number);
     if (player.to_move) {
         var distance = this.board.getCellDistance(cell1, cell2);
@@ -76,7 +18,7 @@ GameServer.prototype.validateMove = function (cell1, cell2, player_number) {
     return false;
 };
 
-GameServer.prototype.assignNextPlayer = function () {
+Game.prototype.assignNextPlayer = function () {
     var next_player_index = 0;
 
     for (i = 0; i < this.players.length; i++) {
@@ -93,7 +35,7 @@ GameServer.prototype.assignNextPlayer = function () {
     this.emit("player turn", this.players[next_player_index].number);
 };
 
-GameServer.prototype.makeMove = function (target, destination, player_number, socket) {
+Game.prototype.makeMove = function (target, destination, player_number, socket) {
     var cell1 = this.board.grid[target.y][target.x];
     var cell2 = this.board.grid[destination.y][destination.x];
 
@@ -138,42 +80,9 @@ GameServer.prototype.makeMove = function (target, destination, player_number, so
     }
 };
 
-GameServer.prototype.emit = function (event, data) {
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i].socket) {
-            this.players[i].socket.emit(event, data);
-        }
-    }
-};
+Game.prototype.startGame = function (args) {
+    this.super.startGame();
 
-GameServer.prototype.getPlayer = function (player_number) {
-    if (this.players[player_number - 1]) {
-        return this.players[player_number - 1];
-    }
-
-    return null;
-};
-
-GameServer.prototype.removePlayer = function (player_id) {
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i] && this.players[i].id === player_id) {
-            this.players.splice(i, 1);
-            return;
-        }
-    }
-};
-
-GameServer.prototype.getPlayerBySocketId = function (socket_id) {
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i].socket && this.players[i].socket.id === socket_id) {
-            return this.players[i];
-        }
-    }
-
-    return null;
-};
-
-GameServer.prototype.startGame = function (args) {
     this.board = new Board(args);
 
     // Do this some other way
@@ -188,7 +97,7 @@ GameServer.prototype.startGame = function (args) {
     this.assignNextPlayer();
 };
 
-GameServer.prototype.gameIsOver = function () {
+Game.prototype.gameIsOver = function () {
     var grid = this.board.grid;
     var empty_cells = 0;
     var players_score = {};
@@ -214,14 +123,14 @@ GameServer.prototype.gameIsOver = function () {
     return remaining_players === 1 || !empty_cells;
 };
 
-GameServer.prototype.endGame = function () {
+Game.prototype.endGame = function () {
     this.emit('game over', this.getResults());
 };
 
-GameServer.prototype.getResults = function () {
+Game.prototype.getResults = function () {
     return {
         winner: 1
     };
 };
 
-module.exports = GameServer;
+util.inherits(Game, Server);

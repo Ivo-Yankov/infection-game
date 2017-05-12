@@ -1,18 +1,20 @@
 var express = require('express');
 var fs = require('fs');
 var app = require('express')();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
 var EventHandler = require('./custom_modules/EventHandler.js');
 var SocketHandler = require('./custom_modules/SocketEventHandler.js');
+var ServerCollection = require('./custom_modules/ServerCollection.js');
+var LobbyListenerCollection = require('./custom_modules/LobbyListenerCollection.js');
 var Path = require('path');
 
 var dist = 'dist';
 var src = 'src';
 var PORT = process.env.PORT || 3000;
 
-app.game_servers = [];
-app.lobbies = [];
+app.servers = new ServerCollection();
+app.lobbyListeners = new LobbyListenerCollection();
 
 app.set('view engine', 'tmpl');
 
@@ -30,6 +32,6 @@ SocketHandler({
     eventEmitter: EventHandler()
 });
 
-server.listen(PORT);
+http.listen(PORT);
 
 console.log('Listening on ', PORT);
