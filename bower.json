@@ -1,0 +1,22 @@
+{
+  "name": "public",
+  "authors": [
+    "Ivo <ivo@devlabs.bg>"
+  ],
+  "directory": "public/bower_components/",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "socket.io-client": "^1.7.2"
+  }
+}

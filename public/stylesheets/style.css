@@ -1,0 +1,107 @@
+body {
+  padding: 0px;
+  margin: 0px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  background: #141414;
+  position: relative;
+}
+
+a {
+  color: #00B7FF;
+}
+
+table {
+	margin: auto;
+	background: white;
+}
+
+tr {
+	vertical-align: middle;
+}
+
+.cell {
+	width: 75px;
+	height: 75px;
+	position: relative;
+	text-align: center;
+}
+
+.cell:after {
+	display: block;
+	content: "";
+	width: 80%;
+	height: 80%;
+	border-radius: 100px;
+	float: left;
+	margin: 10% 10% 0;
+}
+
+.cell.player-1:after {
+	background: blue;
+}
+
+.cell.player-2:after {
+	background: red;
+}
+
+#menu {
+	width: 100%;
+	margin: 100px auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 100;
+}
+
+.menu-item {
+	border: 0px;
+	background: transparent;
+	font-size: 3em;
+	display: block;
+	margin-bottom: 10px;
+	text-align: center;
+	display: block;
+	color: #fefefe;
+	padding: 0px;
+	outline: none !important;
+	text-decoration: none;
+}
+
+a.menu-item:hover {
+	font-weight: bold;
+}
+
+.lobby-template,
+.lobby-player-template,
+.menu-page {
+	display: none;
+}
+
+#board-screen {
+	padding-top: 100px;
+}
+
+.overlay {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background: #252525;
+	opacity: 0.6;
+	z-index: 10;
+}
+
+.cell.possible-move,
+.cell.selected-piece {
+	box-shadow: inset 0px 0px 5px 2px rgba(80,222,90,1)
+}
+
+#my-turn-msg {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	color: #fefefe;
+	font-size: 24px;
+	display: none;
+}

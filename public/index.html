@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>7th guest game clone</title>
+
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/socket.io-client/dist/socket.io.min.js"></script>
+    <script type="text/javascript" src="javascripts/socket-handler.js"></script>
+    <script type="text/javascript" src="javascripts/menu-behaviours.js"></script>
+    <script type="text/javascript" src="javascripts/menu.js"></script>
+    <script type="text/javascript" src="javascripts/cell.js"></script>
+    <script type="text/javascript" src="javascripts/board.js"></script>
+    <script type="text/javascript" src="javascripts/app.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+</head>
+<body>
+
+<div id="menu-overlay" class="overlay"></div>
+
+<div id="menu">
+    <div data-page="main" class="menu-page" id="main-page">
+        <a href="javascript:;" class="menu-item" id="new-ai-game" data-behaviour="newAiGame">New Game (vs AI)</a>
+        <a href="javascript:;" class="menu-item" id="host-game" data-behaviour="hostGame">Host Game</a>
+        <a href="javascript:;" class="menu-item" id="join-game" data-behaviour="openGameList">Join Game</a>
+    </div>
+
+    <div data-page="game-list" class="menu-page" id="games-page">
+        <div class="menu-item">Select a game to join:</div>
+        <a href="javascript:;" class="menu-item lobby lobby-template" data-behaviour="joinGame">xxxxxx</a>
+    </div>
+
+    <div data-page="lobby" class="menu-page" id="lobby-page">
+        <div class="menu-item">Lobby:</div>
+        <a href="javascript:;" class="menu-item lobby-player lobby-player-template">xxxxxx</a>
+    </div>
+
+    <div data-page="game-settings" class="menu-page" id="game-settings">
+        <div class="menu-item">Game Options:</div>
+        <a href="javascript:;" class="menu-item" data-behaviour="startGame">Start Game</a>
+    </div>
+</div>
+
+<div id="board-screen">
+    <div id="my-turn-msg">It's your turn</div>
+    <table border="1" id="board"></table>
+</div>
+
+</body>
+</html>
